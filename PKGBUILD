@@ -1,4 +1,4 @@
-pkgver=550.142
+pkgver=550.144.03
 pkgrel=1
 pkgbase=nvidia-utils
 pkgname=('nvidia-utils' 'lib32-nvidia-utils' 'opencl-nvidia' 'lib32-opencl-nvidia' 'nvidia-dkms' 'nvidia-open-dkms' 'nvidia-settings')
