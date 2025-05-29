@@ -1,0 +1,28 @@
+name: Build PKG
+on: workflow_dispatch
+jobs:
+  build-pkg:
+    permissions: write-all
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:multilib-devel
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: MakePKG
+      run: |
+        pacman -Sy --needed --noconfirm archlinux-keyring github-cli
+        useradd "$GITHUB_USERNAME"
+        chown -R "$GITHUB_USERNAME" "$GITHUB_WORKSPACE"
+        echo "${GITHUB_USERNAME} ALL=(ALL) NOPASSWD: ALL" > "/etc/sudoers.d/${GITHUB_USERNAME}"
+        su "$GITHUB_USERNAME" -c 'makepkg -s --needed --noconfirm'
+      env:
+        GITHUB_USERNAME: ${{ github.actor }}
+    - name: Release
+      run: |
+        VERSION=$(cat '.ver')
+        PKG_FILE=(); for file in *.tar.zst; do [ -f "$file" ] && PKG_FILE+=("$file"); done
+        gh release create -t "NVIDIA ${VERSION}" "NVIDIA-${VERSION}" ${PKG_FILE[@]}
+      env:
+        GH_REPO: ${{ github.repository }}
+        GH_TOKEN: ${{ github.token }}
